@@ -1,0 +1,73 @@
+@import "./variables"; // Import biến vào trang home
+
+.home-page {
+  .home-carousel-inner {
+    min-height: 380px;
+    overflow: hidden;
+
+    .carousel-item-fade {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: inherit;
+      transition: opacity 0.6s ease-in-out;
+      display: flex;
+      align-items: center;
+
+      &.active {
+        opacity: 1;
+        z-index: 2;
+        pointer-events: auto;
+      }
+
+      &.inactive {
+        opacity: 0;
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      .carousel-img {
+        max-height: 320px;
+        object-fit: contain;
+      }
+    }
+  }
+
+  .carousel-control-btn {
+    width: 40px;
+    height: 40px;
+    z-index: 10;
+  }
+
+  // Section Heading
+  .product-feature-title {
+    @include bg-linear-gradient(0deg)
+  }
+
+  // Product Feature Cards
+  .product-card {
+    .heart-icon {
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .product-img {
+      height: 200px;
+      object-fit: contain;
+    }
+
+    .btn-buy {
+      background-color: $buy-btn-bg;
+      border-color: $buy-btn-bg;
+      font-weight: bold;
+      color: #000;
+
+      &:hover {
+        background-color: $buy-btn-hover;
+        border-color: $buy-btn-hover;
+      }
+    }
+  }
+}

@@ -1,0 +1,39 @@
+@import "../variables";
+
+.profile-page {
+  .profile-title-bar {
+    @include bg-linear-gradient(0deg);
+  }
+
+  .avatar-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .btn-update-profile {
+    background: #8a2387;
+    border-color: #8a2387;
+    color: #fff;
+    font-weight: bold;
+
+    &:hover {
+      background: darken(#8a2387, 8%);
+      border-color: darken(#8a2387, 8%);
+    }
+  }
+
+  .tab-btn {
+    font-weight: bold;
+    color: #8a2387;
+    border: none;
+    background: none;
+    font-size: 1.2rem;
+    padding-bottom: 0.5rem;
+
+    &.active {
+      border-bottom: 3px solid #8a2387;
+    }
+  }
+}

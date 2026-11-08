@@ -1,0 +1,17 @@
+@import "bootstrap/scss/bootstrap";
+@import "bootstrap-icons/font/bootstrap-icons.css";
+
+@import "./home";
+@import "./variables";
+@import "./detail";
+@import "./search";
+
+.fs-7 {
+  font-size: 0.85rem;
+}
+
+@media (min-width: 768px) {
+  .border-end-md {
+    border-right: 1px solid #dee2e6;
+  }
+}
