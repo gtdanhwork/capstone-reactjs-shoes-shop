@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { productService } from '../services/productService';
 
+import useRouting from '../customhooks/useRouting';
+
 const Header = () => {
-	const navigate = useNavigate();
-	const location = useLocation();
+	const { navigate, location } = useRouting();
 
 	const cartItems = useSelector((state) => state.cart.cart);
 	const totalCartQty = cartItems.reduce(
@@ -16,7 +17,6 @@ const Header = () => {
 	const [user, setUser] = useState(null);
 	const [categories, setCategories] = useState([]);
 
-	// Fetch product categories on mount
 	useEffect(() => {
 		const fetchCategories = async () => {
 			try {
@@ -29,7 +29,6 @@ const Header = () => {
 		fetchCategories();
 	}, []);
 
-	// Update auth status whenever location changes
 	useEffect(() => {
 		const userLoginStr = localStorage.getItem('userLogin');
 		const token = localStorage.getItem('accessToken');
@@ -55,7 +54,6 @@ const Header = () => {
 	return (
 		<nav className="navbar navbar-expand-lg navbar-dark bg-dark px-4 shadow-sm">
 			<div className="container-fluid">
-				{/* Brand / Logo */}
 				<Link
 					to="/"
 					className="navbar-brand text-white fw-bold d-flex align-items-center"
@@ -68,7 +66,6 @@ const Header = () => {
 					/>
 				</Link>
 
-				{/* Mobile Toggle Button */}
 				<button
 					className="navbar-toggler"
 					type="button"
@@ -85,7 +82,6 @@ const Header = () => {
 					className="collapse navbar-collapse"
 					id="headerNavbar"
 				>
-					{/* Main Navigation Links */}
 					<ul className="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center">
 						<li className="nav-item">
 							<Link
@@ -96,7 +92,6 @@ const Header = () => {
 							</Link>
 						</li>
 
-						{/* Dynamic Category Links */}
 						{categories.map((cat) => (
 							<li
 								className="nav-item"
@@ -112,9 +107,7 @@ const Header = () => {
 						))}
 					</ul>
 
-					{/* Right Side: Search Icon, Cart, and Auth Controls */}
 					<div className="d-flex align-items-center gap-3 mt-3 mt-lg-0">
-						{/* Search Quick Link */}
 						<Link
 							to="/search"
 							className="text-white text-decoration-none fs-5 me-2"
@@ -123,7 +116,6 @@ const Header = () => {
 							<i className="bi bi-search"></i>
 						</Link>
 
-						{/* Cart Icon with Dynamic Counter Badge */}
 						<Link
 							to="/carts"
 							className="text-white text-decoration-none position-relative fs-5 me-2"
@@ -139,7 +131,6 @@ const Header = () => {
 							)}
 						</Link>
 
-						{/* Auth Controls */}
 						{user ? (
 							<div className="d-flex align-items-center gap-3">
 								<Link

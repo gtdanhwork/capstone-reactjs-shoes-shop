@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { productService } from '../services/productService';
 
 import { useDispatch } from 'react-redux';
+
 import { addToCart } from '../redux/cartSlice';
+import useRouting from '../customhooks/useRouting';
 
 const Detail = () => {
-	const { id } = useParams(); // Get product id from URL route: /detail/:id
+	const { params } = useRouting();
+	const { id } = params;
 	const [product, setProduct] = useState(null);
 	const [selectedSize, setSelectedSize] = useState(null);
 	const [quantity, setQuantity] = useState(1);

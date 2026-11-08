@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { userService } from '../services/userService';
 import LoadingSpinner from '../components/LoadingSpinner';
+import useRouting from '../customhooks/useRouting';
 
 const Profile = () => {
-	const navigate = useNavigate();
+	const { navigate } = useRouting();
 	const [profileData, setProfileData] = useState(null);
 	const [activeTab, setActiveTab] = useState('orders'); // 'orders', 'favorites', 'security'
 	const [favorites, setFavorites] = useState([]);

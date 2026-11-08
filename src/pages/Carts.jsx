@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { removeFromCart, updateQuantity, clearCart } from '../redux/cartSlice';
 import { http } from '../middlewares/interceptors';
-import { useNavigate } from 'react-router-dom';
+import useRedux from '../customhooks/useRedux';
+import useRouting from '../customhooks/useRouting';
 
 const Carts = () => {
-	const dispatch = useDispatch();
-	const navigate = useNavigate();
+	const { dispatch } = useRedux();
+	const { navigate } = useRouting();
 	const cartItems = useSelector((state) => state.cart.cart);
 	const [loading, setLoading] = useState(false);
 

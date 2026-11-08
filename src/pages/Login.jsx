@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { userService } from '../services/userService';
+import useRouting from '../customhooks/useRouting';
 
 const Login = () => {
-	const navigate = useNavigate();
+	const { navigate } = useRouting();
 	const [serverError, setServerError] = useState('');
 
 	const loginSchema = Yup.object().shape({

@@ -4,11 +4,9 @@ import { Link } from 'react-router-dom';
 const Footer = () => {
   return (
     <footer className="footer mt-auto">
-      {/* Upper Footer Links */}
       <div className="bg-white py-5 border-top">
         <div className="container">
           <div className="row g-4">
-            {/* GET HELP Column */}
             <div className="col-12 col-md-4 border-end-md">
               <h6 className="fw-bold text-uppercase mb-3">GET HELP</h6>
               <ul className="list-unstyled mb-0">
@@ -19,7 +17,6 @@ const Footer = () => {
               </ul>
             </div>
 
-            {/* SUPPORT Column */}
             <div className="col-12 col-md-4 border-end-md">
               <h6 className="fw-bold text-uppercase mb-3">SUPPORT</h6>
               <ul className="list-unstyled mb-0">
@@ -30,7 +27,6 @@ const Footer = () => {
               </ul>
             </div>
 
-            {/* REGISTER Column */}
             <div className="col-12 col-md-4">
               <h6 className="fw-bold text-uppercase mb-3">REGISTER</h6>
               <ul className="list-unstyled mb-0">
@@ -42,7 +38,6 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Copyright Bar */}
       <div className="bg-light text-center py-3 border-top">
         <div className="container">
           <p className="mb-0 text-dark small">

@@ -1,12 +1,11 @@
 import axios from 'axios';
 
-// Updated Base URL from instructor's new documentation
 export const http = axios.create({
 	baseURL: 'https://apistore.cybersoft.edu.vn/api',
 	timeout: 30000,
 });
 
-// Request Interceptor: Attach token if user is logged in
+// 1. Request Interceptor: Attaches the Bearer token to outgoing headers
 http.interceptors.request.use(
 	(config) => {
 		const token = localStorage.getItem('accessToken');
@@ -15,10 +14,11 @@ http.interceptors.request.use(
 		}
 		return config;
 	},
-	(error) => Promise.reject(error),
+	(error) => {
+		return Promise.reject(error);
+	},
 );
 
-// Response Interceptor
 // 2. Response Interceptor: Catches 401 Unauthorized when tokens expire
 http.interceptors.response.use(
 	(response) => {

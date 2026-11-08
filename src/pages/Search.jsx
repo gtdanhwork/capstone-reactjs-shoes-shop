@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
 import { productService } from '../services/productService';
 import ProductItem from '../components/ProductItem';
 import LoadingSpinner from '../components/LoadingSpinner';
+import useRouting from '../customhooks/useRouting';
+import EmptyState from '../components/EmptyState';
 
 const Search = () => {
-	const [searchParams, setSearchParams] = useSearchParams();
+	const { searchParams, setSearchParams } = useRouting();
 	const query = searchParams.get('keyword') || '';
 	const categoryId = searchParams.get('categoryId') || '';
 

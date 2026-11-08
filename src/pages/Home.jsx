@@ -2,30 +2,31 @@ import React, { useState, useEffect } from 'react';
 import { productService } from '../services/productService';
 import { Link } from 'react-router-dom';
 import ProductItem from '../components/ProductItem';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const Home = () => {
 	const [arrProduct, setArrProduct] = useState([]);
-	const [likedProducts, setLikedProducts] = useState({});
+	const [loading, setLoading] = useState(true);
 	const [currentIndex, setCurrentIndex] = useState(0);
+
+	// Pagination states
+	const [currentPage, setCurrentPage] = useState(1);
+	const itemsPerPage = 8; // Number of items per page
 
 	useEffect(() => {
 		const fetchProducts = async () => {
 			try {
+				setLoading(true);
 				const data = await productService.getAllProducts();
 				setArrProduct(data);
 			} catch (error) {
 				console.error('Lỗi khi tải danh sách sản phẩm:', error);
+			} finally {
+				setLoading(false);
 			}
 		};
 		fetchProducts();
 	}, []);
-
-	const toggleFavorite = (productId) => {
-		setLikedProducts((prev) => ({
-			...prev,
-			[productId]: !prev[productId],
-		}));
-	};
 
 	const carouselItems = arrProduct.slice(0, 3);
 
@@ -40,6 +41,21 @@ const Home = () => {
 			prev === carouselItems.length - 1 ? 0 : prev + 1,
 		);
 	};
+
+	// Pagination calculations
+	const indexOfLastItem = currentPage * itemsPerPage;
+	const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+	const currentProducts = arrProduct.slice(indexOfFirstItem, indexOfLastItem);
+	const totalPages = Math.ceil(arrProduct.length / itemsPerPage);
+
+	const handlePageChange = (pageNumber) => {
+		setCurrentPage(pageNumber);
+		window.scrollTo({ top: 0, behavior: 'smooth' }); // Smooth scroll back to top on page change
+	};
+
+	if (loading) {
+		return <LoadingSpinner message="Đang tải danh sách sản phẩm..." />;
+	}
 
 	return (
 		<div className="home-page">
@@ -113,7 +129,7 @@ const Home = () => {
 			<div className="container py-4">
 				<h2 className="fw-bold text-center mb-4">Product Feature</h2>
 				<div className="row g-3 g-md-4">
-					{arrProduct.map((product) => (
+					{currentProducts.map((product) => (
 						<div
 							key={product.id}
 							className="col-12 col-sm-6 col-md-4 col-lg-3"
@@ -122,6 +138,64 @@ const Home = () => {
 						</div>
 					))}
 				</div>
+
+				{/* Bootstrap Pagination Controls */}
+				{totalPages > 1 && (
+					<nav
+						className="mt-5"
+						aria-label="Page navigation"
+					>
+						<ul className="pagination justify-content-center">
+							{/* Previous Button */}
+							<li
+								className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}
+							>
+								<button
+									className="page-link"
+									onClick={() =>
+										handlePageChange(currentPage - 1)
+									}
+								>
+									Previous
+								</button>
+							</li>
+
+							{/* Page Numbers */}
+							{Array.from({ length: totalPages }, (_, index) => {
+								const pageNum = index + 1;
+								return (
+									<li
+										key={pageNum}
+										className={`page-item ${currentPage === pageNum ? 'active' : ''}`}
+									>
+										<button
+											className="page-link"
+											onClick={() =>
+												handlePageChange(pageNum)
+											}
+										>
+											{pageNum}
+										</button>
+									</li>
+								);
+							})}
+
+							{/* Next Button */}
+							<li
+								className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}
+							>
+								<button
+									className="page-link"
+									onClick={() =>
+										handlePageChange(currentPage + 1)
+									}
+								>
+									Next
+								</button>
+							</li>
+						</ul>
+					</nav>
+				)}
 			</div>
 		</div>
 	);
