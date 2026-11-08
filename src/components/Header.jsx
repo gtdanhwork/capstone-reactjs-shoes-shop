@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { productService } from '../services/productService';
+import logoImg from '../assets/media/img/cybersoft.png';
 
 import useRouting from '../customhooks/useRouting';
 
@@ -59,7 +60,7 @@ const Header = () => {
 					className="navbar-brand text-white fw-bold d-flex align-items-center"
 				>
 					<img
-						src="/cybersoft.png"
+						src={logoImg}
 						alt="CyberSoft Logo"
 						height="30"
 						className="me-2"
