@@ -20,7 +20,6 @@ const Detail = () => {
 			try {
 				const data = await productService.getProductById(id);
 				setProduct(data);
-				// Set default selected size to the first available size if exists
 				if (data && data.size && data.size.length > 0) {
 					setSelectedSize(data.size[0]);
 				}
@@ -78,7 +77,6 @@ const Detail = () => {
 						</div>
 					</div>
 
-					{/* Product Info & Actions */}
 					<div className="col-lg-7">
 						<h1 className="fw-bold mb-3">{product.name}</h1>
 						<p className="text-muted">{product.description}</p>

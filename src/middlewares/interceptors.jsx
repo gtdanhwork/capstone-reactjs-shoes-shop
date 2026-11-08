@@ -19,7 +19,6 @@ http.interceptors.request.use(
 		const token = localStorage.getItem('accessToken');
 		if (token) {
 			if (isTokenExpired(token)) {
-				// Token is expired, remove it immediately so request goes out as guest
 				localStorage.removeItem('accessToken');
 				localStorage.removeItem('userLogin');
 			} else {
@@ -37,11 +36,9 @@ http.interceptors.response.use(
 	(response) => response,
 	(error) => {
 		if (error.response && error.response.status === 401) {
-			// Clear expired credentials
 			localStorage.removeItem('accessToken');
 			localStorage.removeItem('userLogin');
 
-			// Define pages that strictly require authentication
 			const protectedRoutes = ['/profile', '/cart', '/checkout'];
 			const currentPath = window.location.pathname;
 			const isProtected = protectedRoutes.some((route) =>

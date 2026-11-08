@@ -18,12 +18,10 @@ const Search = () => {
 	const [products, setProducts] = useState([]);
 	const [loading, setLoading] = useState(false);
 
-	// Pagination states
 	const [pageIndex, setPageIndex] = useState(1);
 	const [pageSize] = useState(8);
 	const [totalItems, setTotalItems] = useState(0);
 
-	// Fetch categories list on mount
 	useEffect(() => {
 		const fetchCategories = async () => {
 			try {
@@ -36,13 +34,11 @@ const Search = () => {
 		fetchCategories();
 	}, []);
 
-	// Synchronize local input state when URL searchParams change
 	useEffect(() => {
 		setKeywordInput(query);
 		setSelectedCategory(categoryId);
 	}, [query, categoryId]);
 
-	// Main data fetching logic based on URL params
 	useEffect(() => {
 		const fetchSearchData = async () => {
 			setLoading(true);
@@ -81,7 +77,6 @@ const Search = () => {
 		fetchSearchData();
 	}, [query, categoryId, pageIndex, pageSize]);
 
-	// Handle manual form submission
 	const handleSearchSubmit = (e) => {
 		e.preventDefault();
 		const params = {};
@@ -92,7 +87,6 @@ const Search = () => {
 		setSearchParams(params);
 	};
 
-	// Reset search filters
 	const handleResetFilters = () => {
 		setKeywordInput('');
 		setSelectedCategory('');
@@ -101,7 +95,6 @@ const Search = () => {
 		setSearchParams({});
 	};
 
-	// Process sorting on current product list
 	const getSortedProducts = () => {
 		const list = [...products];
 		if (sortOrder === 'asc') {
@@ -125,7 +118,6 @@ const Search = () => {
 
 	return (
 		<div className="container py-4">
-			{/* Header Bar */}
 			<div
 				className="py-2 px-4 rounded text-white mb-4"
 				style={{
@@ -136,7 +128,6 @@ const Search = () => {
 				<h3 className="m-0 fw-bold">Search Products</h3>
 			</div>
 
-			{/* Interactive Search Controls Form */}
 			<div className="bg-light p-4 rounded shadow-sm mb-4">
 				<form onSubmit={handleSearchSubmit}>
 					<div className="row g-3 align-items-end">
@@ -222,7 +213,6 @@ const Search = () => {
 				</form>
 			</div>
 
-			{/* Results Subheading */}
 			<div className="d-flex justify-content-between align-items-center mb-3">
 				<h5 className="fw-bold text-muted m-0">
 					{query
@@ -236,7 +226,6 @@ const Search = () => {
 				</span>
 			</div>
 
-			{/* Product List Grid */}
 			{loading ? (
 				<LoadingSpinner />
 			) : displayedProducts.length === 0 ? (
@@ -259,7 +248,6 @@ const Search = () => {
 						))}
 					</div>
 
-					{/* Pagination Bar (Only when viewing catalog without search/category active) */}
 					{!query && !categoryId && totalPages > 1 && (
 						<nav className="d-flex justify-content-center mt-4">
 							<ul className="pagination">

@@ -11,10 +11,8 @@ export const useRouting = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const location = useLocation();
 
-	// Helper to quickly get a query parameter value by name
 	const getQueryParam = (key) => searchParams.get(key);
 
-	// Helper to update query parameters easily
 	const setQueryParam = (key, value) => {
 		const newParams = new URLSearchParams(searchParams);
 		if (value) {

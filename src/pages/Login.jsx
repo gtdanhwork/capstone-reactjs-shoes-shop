@@ -4,6 +4,7 @@ import * as Yup from 'yup';
 import { Link } from 'react-router-dom';
 import { userService } from '../services/userService';
 import useRouting from '../customhooks/useRouting';
+import FacebookLoginBtn from '../components/FacebookLoginBtn';
 
 const Login = () => {
 	const { navigate } = useRouting();
@@ -48,7 +49,6 @@ const Login = () => {
 			<div className="row justify-content-center">
 				<div className="col-md-8 col-lg-6">
 					<div className="card shadow-sm border-0 p-4 bg-light">
-						{/* Top Navigation Row with Return Button */}
 						<div className="d-flex align-items-center justify-content-between mb-4">
 							<button
 								type="button"
@@ -58,8 +58,7 @@ const Login = () => {
 								<i className="bi bi-arrow-left"></i> Back
 							</button>
 							<h2 className="fw-bold m-0">Login</h2>
-							<div style={{ width: '60px' }}></div>{' '}
-							{/* Spacer to center heading */}
+							<div style={{ width: '60px' }}></div>
 						</div>
 
 						{serverError && (
@@ -127,19 +126,7 @@ const Login = () => {
 							</div>
 
 							<div className="text-center">
-								<button
-									type="button"
-									className="btn text-white w-100 py-2 fw-bold"
-									style={{ backgroundColor: '#1877f2' }}
-									onClick={() =>
-										alert(
-											'Facebook login hook can be integrated here!',
-										)
-									}
-								>
-									<i className="bi bi-facebook me-2"></i>{' '}
-									Continue with Facebook
-								</button>
+								<FacebookLoginBtn />
 							</div>
 						</form>
 					</div>

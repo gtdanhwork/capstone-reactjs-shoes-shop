@@ -9,7 +9,7 @@ import useRouting from '../customhooks/useRouting';
 const Profile = () => {
 	const { navigate } = useRouting();
 	const [profileData, setProfileData] = useState(null);
-	const [activeTab, setActiveTab] = useState('orders'); // 'orders', 'favorites', 'security'
+	const [activeTab, setActiveTab] = useState('orders');
 	const [favorites, setFavorites] = useState([]);
 	const [serverMsg, setServerMsg] = useState({ type: '', message: '' });
 	const [avatarUrl, setAvatarUrl] = useState('');
@@ -17,7 +17,6 @@ const Profile = () => {
 	const handleAvatarFileChange = (e) => {
 		const file = e.target.files[0];
 		if (file) {
-			// Validate file size or type if needed (e.g. max 2MB)
 			if (file.size > 2 * 1024 * 1024) {
 				alert('File size must be less than 2MB');
 				return;
@@ -25,7 +24,6 @@ const Profile = () => {
 
 			const reader = new FileReader();
 			reader.onloadend = () => {
-				// Set the Base64 result as the avatar URL/value
 				const base64String = reader.result;
 				setAvatarUrl(base64String);
 				formik.setFieldValue('avatar', base64String);
@@ -33,9 +31,6 @@ const Profile = () => {
 			reader.readAsDataURL(file);
 		}
 	};
-
-	// Load User Profile and Favorites on Mount
-	// Load User Profile and Favorites on Mount
 	useEffect(() => {
 		const token = localStorage.getItem('accessToken');
 		if (!token) {
@@ -50,7 +45,6 @@ const Profile = () => {
 				setProfileData(user);
 				setAvatarUrl(user.avatar || 'https://i.pravatar.cc/150');
 
-				// Populate Formik fields
 				formik.setValues({
 					email: user.email || '',
 					password: '',
@@ -60,7 +54,6 @@ const Profile = () => {
 					avatar: user.avatar || '',
 				});
 
-				// Fetch favorite products with fallback to user profile data
 				const favs = await userService.getFavoriteProducts();
 				const combinedFavs =
 					favs.length > 0 ? favs : user.productsFavorite || [];
@@ -73,7 +66,6 @@ const Profile = () => {
 		fetchUserData();
 	}, [navigate]);
 
-	// Formik & Yup Validation for Profile Updates
 	const formik = useFormik({
 		initialValues: {
 			email: '',
@@ -140,7 +132,6 @@ const Profile = () => {
 		},
 	});
 
-	// Password Change Formik
 	const passwordFormik = useFormik({
 		initialValues: {
 			newPassword: '',
@@ -489,11 +480,9 @@ const Profile = () => {
 					<div className="row g-3 g-md-4">
 						{favorites && favorites.length > 0 ? (
 							favorites.map((prod, index) => {
-								// Handle flattened or nested product object structures
 								const item = prod.product || prod;
 								const productId =
 									item.id || item.productId || index;
-								// Fallback for price property
 								const productPrice =
 									item.price ?? item.cost ?? '0';
 

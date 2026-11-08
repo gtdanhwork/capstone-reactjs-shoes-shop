@@ -23,7 +23,6 @@ export const userService = {
 
 	updateProfile: async (profileData) => {
 		try {
-			// profileData can include email, name, phone, gender, password, avatar
 			const response = await http.post(
 				'/Users/updateProfile',
 				profileData,
@@ -65,7 +64,6 @@ export const userService = {
 			return [];
 		}
 	},
-	// Like a product (GET /api/Users/like?productId=...)
 	likeProduct: async (productId) => {
 		try {
 			const response = await http.get(
@@ -78,7 +76,6 @@ export const userService = {
 		}
 	},
 
-	// Unlike a product (GET /api/Users/unlike?productId=...)
 	unlikeProduct: async (productId) => {
 		try {
 			const response = await http.get(
@@ -87,6 +84,16 @@ export const userService = {
 			return response.data;
 		} catch (error) {
 			console.error('Error unliking product:', error);
+			throw error;
+		}
+	},
+	facebookLogin: async (facebookToken) => {
+		try {
+			const response = await http.post('/Users/facebooklogin', {
+				facebookToken,
+			});
+			return response.data.content;
+		} catch (error) {
 			throw error;
 		}
 	},

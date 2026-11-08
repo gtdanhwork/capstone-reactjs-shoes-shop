@@ -77,7 +77,6 @@ const Register = () => {
 			<div className="row justify-content-center">
 				<div className="col-md-8 col-lg-6">
 					<div className="card shadow-sm border-0 p-4 bg-light">
-						{/* Top Navigation Row with Return Button */}
 						<div className="d-flex align-items-center justify-content-between mb-4">
 							<button
 								type="button"
@@ -88,7 +87,6 @@ const Register = () => {
 							</button>
 							<h2 className="fw-bold m-0">Register</h2>
 							<div style={{ width: '60px' }}></div>{' '}
-							{/* Spacer to center heading */}
 						</div>
 
 						{serverError && (
@@ -103,7 +101,6 @@ const Register = () => {
 						)}
 
 						<form onSubmit={formik.handleSubmit}>
-							{/* Email */}
 							<div className="mb-3">
 								<label className="form-label fw-bold">
 									Email
@@ -123,7 +120,6 @@ const Register = () => {
 									)}
 							</div>
 
-							{/* Password */}
 							<div className="mb-3">
 								<label className="form-label fw-bold">
 									Password
@@ -143,7 +139,6 @@ const Register = () => {
 									)}
 							</div>
 
-							{/* Password Confirm */}
 							<div className="mb-3">
 								<label className="form-label fw-bold">
 									Password confirm
@@ -163,7 +158,6 @@ const Register = () => {
 									)}
 							</div>
 
-							{/* Name */}
 							<div className="mb-3">
 								<label className="form-label fw-bold">
 									Name
@@ -182,7 +176,6 @@ const Register = () => {
 								)}
 							</div>
 
-							{/* Phone */}
 							<div className="mb-3">
 								<label className="form-label fw-bold">
 									Phone
@@ -202,7 +195,6 @@ const Register = () => {
 									)}
 							</div>
 
-							{/* Gender */}
 							<div className="mb-4">
 								<label className="form-label fw-bold d-block">
 									Gender

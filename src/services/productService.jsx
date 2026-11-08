@@ -1,7 +1,6 @@
 import { http } from '../middlewares/interceptors';
 
 export const productService = {
-	// Get all products
 	getAllProducts: async () => {
 		try {
 			const response = await http.get('/Product');
@@ -12,7 +11,6 @@ export const productService = {
 		}
 	},
 
-	// Get product by ID (Detail page)
 	getProductById: async (id) => {
 		try {
 			const response = await http.get(`/Product/getbyid?id=${id}`);
@@ -23,7 +21,6 @@ export const productService = {
 		}
 	},
 
-	// Search product by keyword name
 	getProductByName: async (keyword) => {
 		try {
 			const response = await http.get(`/Product?keyword=${keyword}`);
@@ -37,7 +34,6 @@ export const productService = {
 		}
 	},
 
-	// Get all categories for header navigation & search filters
 	getAllCategory: async () => {
 		try {
 			const response = await http.get('/Product/getAllCategory');
@@ -48,7 +44,6 @@ export const productService = {
 		}
 	},
 
-	// Filter products by Category ID
 	getProductByCategory: async (categoryId) => {
 		try {
 			const response = await http.get(
@@ -64,7 +59,6 @@ export const productService = {
 		}
 	},
 
-	// Get paginated product list
 	getProductPaging: async (pageIndex = 1, pageSize = 8) => {
 		try {
 			const response = await http.get(

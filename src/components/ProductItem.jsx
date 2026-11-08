@@ -41,7 +41,6 @@ const ProductItem = ({ product, initialLiked = false, onToggleSuccess }) => {
 
 	return (
 		<div className="card h-100 border-0 shadow-sm p-3 text-center position-relative">
-			{/* Heart Icon Button */}
 			<button
 				className="btn btn-link position-absolute top-0 end-0 p-2 text-danger border-0 shadow-none"
 				onClick={handleToggleFavorite}

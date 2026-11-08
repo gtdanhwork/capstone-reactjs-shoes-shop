@@ -9,9 +9,8 @@ const Home = () => {
 	const [loading, setLoading] = useState(true);
 	const [currentIndex, setCurrentIndex] = useState(0);
 
-	// Pagination states
 	const [currentPage, setCurrentPage] = useState(1);
-	const itemsPerPage = 8; // Number of items per page
+	const itemsPerPage = 8;
 
 	useEffect(() => {
 		const fetchProducts = async () => {
@@ -41,8 +40,6 @@ const Home = () => {
 			prev === carouselItems.length - 1 ? 0 : prev + 1,
 		);
 	};
-
-	// Pagination calculations
 	const indexOfLastItem = currentPage * itemsPerPage;
 	const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 	const currentProducts = arrProduct.slice(indexOfFirstItem, indexOfLastItem);
@@ -50,7 +47,7 @@ const Home = () => {
 
 	const handlePageChange = (pageNumber) => {
 		setCurrentPage(pageNumber);
-		window.scrollTo({ top: 0, behavior: 'smooth' }); // Smooth scroll back to top on page change
+		window.scrollTo({ top: 0, behavior: 'smooth' });
 	};
 
 	if (loading) {
@@ -59,7 +56,6 @@ const Home = () => {
 
 	return (
 		<div className="home-page">
-			{/* Carousel Section */}
 			<section className="container my-4">
 				<div className="position-relative px-md-5">
 					<div className="carousel-inner home-carousel-inner bg-light border rounded-3 p-4 p-md-5 position-relative">
@@ -98,7 +94,6 @@ const Home = () => {
 						})}
 					</div>
 
-					{/* Side Arrow Controllers */}
 					<button
 						className="carousel-control-prev border-0 bg-transparent position-absolute start-0 translate-middle-y top-50 ms-md-2 carousel-control-btn"
 						type="button"
@@ -125,7 +120,6 @@ const Home = () => {
 				</div>
 			</section>
 
-			{/* Product Feature Grid */}
 			<div className="container py-4">
 				<h2 className="fw-bold text-center mb-4">Product Feature</h2>
 				<div className="row g-3 g-md-4">
@@ -139,14 +133,12 @@ const Home = () => {
 					))}
 				</div>
 
-				{/* Bootstrap Pagination Controls */}
 				{totalPages > 1 && (
 					<nav
 						className="mt-5"
 						aria-label="Page navigation"
 					>
 						<ul className="pagination justify-content-center">
-							{/* Previous Button */}
 							<li
 								className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}
 							>
@@ -160,7 +152,6 @@ const Home = () => {
 								</button>
 							</li>
 
-							{/* Page Numbers */}
 							{Array.from({ length: totalPages }, (_, index) => {
 								const pageNum = index + 1;
 								return (
@@ -180,7 +171,6 @@ const Home = () => {
 								);
 							})}
 
-							{/* Next Button */}
 							<li
 								className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}
 							>
