@@ -14,7 +14,7 @@ import './assets/scss/index.scss';
 
 function App() {
 	return (
-		<BrowserRouter>
+		<BrowserRouter basename="/capstone-reactjs-shoes-shop">
 			<Routes>
 				{/* Main Shop Routes wrapped with HomeTemplate */}
 				<Route
