@@ -125,7 +125,7 @@ const Header = () => {
 
 						{/* Cart Icon with Dynamic Counter Badge */}
 						<Link
-							to="/cart"
+							to="/carts"
 							className="text-white text-decoration-none position-relative fs-5 me-2"
 						>
 							<i className="bi bi-cart"></i>

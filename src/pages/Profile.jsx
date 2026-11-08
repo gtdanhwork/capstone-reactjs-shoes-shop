@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { userService } from '../services/userService';
@@ -7,10 +7,32 @@ import { userService } from '../services/userService';
 const Profile = () => {
 	const navigate = useNavigate();
 	const [profileData, setProfileData] = useState(null);
-	const [activeTab, setActiveTab] = useState('orders'); // 'orders' or 'favorites'
+	const [activeTab, setActiveTab] = useState('orders'); // 'orders', 'favorites', 'security'
 	const [favorites, setFavorites] = useState([]);
 	const [serverMsg, setServerMsg] = useState({ type: '', message: '' });
+	const [avatarUrl, setAvatarUrl] = useState('');
 
+	const handleAvatarFileChange = (e) => {
+		const file = e.target.files[0];
+		if (file) {
+			// Validate file size or type if needed (e.g. max 2MB)
+			if (file.size > 2 * 1024 * 1024) {
+				alert('File size must be less than 2MB');
+				return;
+			}
+
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				// Set the Base64 result as the avatar URL/value
+				const base64String = reader.result;
+				setAvatarUrl(base64String);
+				formik.setFieldValue('avatar', base64String);
+			};
+			reader.readAsDataURL(file);
+		}
+	};
+
+	// Load User Profile and Favorites on Mount
 	// Load User Profile and Favorites on Mount
 	useEffect(() => {
 		const token = localStorage.getItem('accessToken');
@@ -24,6 +46,7 @@ const Profile = () => {
 			try {
 				const user = await userService.getProfile();
 				setProfileData(user);
+				setAvatarUrl(user.avatar || 'https://i.pravatar.cc/150');
 
 				// Populate Formik fields
 				formik.setValues({
@@ -32,11 +55,14 @@ const Profile = () => {
 					name: user.name || '',
 					phone: user.phone || '',
 					gender: user.gender ?? true,
+					avatar: user.avatar || '',
 				});
 
-				// Fetch favorite products
+				// Fetch favorite products with fallback to user profile data
 				const favs = await userService.getFavoriteProducts();
-				setFavorites(favs || []);
+				const combinedFavs =
+					favs.length > 0 ? favs : user.productsFavorite || [];
+				setFavorites(combinedFavs);
 			} catch (err) {
 				console.error('Error retrieving profile:', err);
 			}
@@ -53,6 +79,7 @@ const Profile = () => {
 			name: '',
 			phone: '',
 			gender: true,
+			avatar: '',
 		},
 		enableReinitialize: true,
 		validationSchema: Yup.object().shape({
@@ -71,6 +98,7 @@ const Profile = () => {
 				.min(9, 'Phone must be at least 9 digits')
 				.required('Phone is required'),
 			gender: Yup.boolean().required('Please select gender'),
+			avatar: Yup.string().url('Must be a valid image URL').nullable(),
 		}),
 		onSubmit: async (values) => {
 			setServerMsg({ type: '', message: '' });
@@ -82,8 +110,11 @@ const Profile = () => {
 					gender: values.gender,
 				};
 
-				// Attach password to payload if provided
-				if (values.password.trim() !== '') {
+				if (values.avatar) {
+					payload.avatar = values.avatar;
+				}
+
+				if (values.password && values.password.trim() !== '') {
 					payload.password = values.password;
 				}
 
@@ -92,7 +123,10 @@ const Profile = () => {
 					type: 'success',
 					message: 'Cập nhật thông tin thành công!',
 				});
-				formik.setFieldValue('password', ''); // Clear password field after update
+				if (values.avatar) {
+					setAvatarUrl(values.avatar);
+				}
+				formik.setFieldValue('password', '');
 			} catch (err) {
 				setServerMsg({
 					type: 'danger',
@@ -100,6 +134,40 @@ const Profile = () => {
 						err.response?.data?.message ||
 						'Cập nhật thất bại. Vui lòng thử lại.',
 				});
+			}
+		},
+	});
+
+	// Password Change Formik
+	const passwordFormik = useFormik({
+		initialValues: {
+			newPassword: '',
+			confirmPassword: '',
+		},
+		validationSchema: Yup.object().shape({
+			newPassword: Yup.string()
+				.min(6, 'Password must be at least 6 characters')
+				.required('New password is required'),
+			confirmPassword: Yup.string()
+				.oneOf([Yup.ref('newPassword'), null], 'Passwords do not match')
+				.required('Confirm password is required'),
+		}),
+		onSubmit: async (values, { resetForm }) => {
+			try {
+				await userService.updateProfile({
+					email: formik.values.email,
+					name: formik.values.name,
+					phone: formik.values.phone,
+					gender: formik.values.gender,
+					password: values.newPassword,
+				});
+				alert('Đổi mật khẩu thành công!');
+				resetForm();
+			} catch (err) {
+				alert(
+					err.response?.data?.message ||
+						'Đổi mật khẩu thất bại. Vui lòng thử lại.',
+				);
 			}
 		},
 	});
@@ -121,21 +189,79 @@ const Profile = () => {
 		<div className="profile-page py-4">
 			<div className="container">
 				{/* Profile Header Bar */}
-				<div className="py-2 px-4 rounded text-white mb-4 profile-title-bar">
+				<div
+					className="py-2 px-4 rounded text-white mb-4"
+					style={{
+						background:
+							'linear-gradient(90deg, #8a2387, #e94057, #f27121)',
+					}}
+				>
 					<h3 className="m-0 fw-bold">Profile</h3>
 				</div>
 
 				{/* User Info Form */}
 				<div className="row align-items-center mb-5 bg-light p-4 rounded shadow-sm">
+					{/* Avatar Section */}
 					<div className="col-md-3 text-center mb-4 mb-md-0">
-						<img
-							src={
-								profileData.avatar ||
-								'https://i.pravatar.cc/150'
-							}
-							alt={profileData.name}
-							className="avatar-img shadow-sm img-fluid"
-						/>
+						<div className="position-relative d-inline-block">
+							<img
+								src={avatarUrl}
+								alt={profileData.name}
+								className="rounded-circle shadow-sm mb-2"
+								style={{
+									width: '130px',
+									height: '130px',
+									objectFit: 'cover',
+								}}
+								onError={(e) => {
+									e.target.src = 'https://i.pravatar.cc/150';
+								}}
+							/>
+						</div>
+
+						<div className="mb-2">
+							<label
+								htmlFor="avatarFileInput"
+								className="btn btn-outline-dark btn-sm fw-bold w-100"
+								style={{ cursor: 'pointer' }}
+							>
+								<i className="bi bi-upload me-1"></i> Upload
+								from PC
+							</label>
+							<input
+								id="avatarFileInput"
+								type="file"
+								accept="image/*"
+								className="d-none"
+								onChange={handleAvatarFileChange}
+							/>
+						</div>
+						<div>
+							<label className="form-label fw-bold">
+								Avatar Image URL or Upload
+							</label>
+							<input
+								type="text"
+								name="avatar"
+								placeholder="https://example.com/avatar.jpg"
+								className={`form-control ${
+									formik.touched.avatar &&
+									formik.errors.avatar
+										? 'is-invalid'
+										: ''
+								}`}
+								{...formik.getFieldProps('avatar')}
+								onChange={(e) => {
+									formik.handleChange(e);
+									setAvatarUrl(e.target.value);
+								}}
+							/>
+							{formik.touched.avatar && formik.errors.avatar && (
+								<div className="invalid-feedback">
+									{formik.errors.avatar}
+								</div>
+							)}
+						</div>
 					</div>
 
 					<div className="col-md-9">
@@ -208,31 +334,6 @@ const Profile = () => {
 										)}
 								</div>
 
-								{/* Password */}
-								<div className="col-md-6">
-									<label className="form-label fw-bold">
-										Password
-									</label>
-									<input
-										type="password"
-										name="password"
-										placeholder="Enter new password to change"
-										className={`form-control ${
-											formik.touched.password &&
-											formik.errors.password
-												? 'is-invalid'
-												: ''
-										}`}
-										{...formik.getFieldProps('password')}
-									/>
-									{formik.touched.password &&
-										formik.errors.password && (
-											<div className="invalid-feedback">
-												{formik.errors.password}
-											</div>
-										)}
-								</div>
-
 								{/* Gender */}
 								<div className="col-md-6">
 									<label className="form-label fw-bold d-block">
@@ -290,9 +391,10 @@ const Profile = () => {
 							<div className="mt-4 text-end">
 								<button
 									type="submit"
-									className="btn btn-update-profile px-4 py-2 rounded-pill"
+									className="btn text-white px-4 py-2 rounded-pill fw-bold"
+									style={{ backgroundColor: '#8a2387' }}
 								>
-									Update
+									Update Profile
 								</button>
 							</div>
 						</form>
@@ -302,16 +404,34 @@ const Profile = () => {
 				{/* Tab Selection */}
 				<div className="d-flex gap-4 border-bottom mb-4">
 					<button
-						className={`btn btn-primary ${activeTab === 'orders' ? 'active' : ''}`}
+						className={`btn btn-link text-decoration-none fw-bold pb-2 ${
+							activeTab === 'orders'
+								? 'border-bottom border-3 border-danger text-danger'
+								: 'text-secondary'
+						}`}
 						onClick={() => setActiveTab('orders')}
 					>
 						Order history
 					</button>
 					<button
-						className={`btn btn-secondary ${activeTab === 'favorites' ? 'active' : ''}`}
+						className={`btn btn-link text-decoration-none fw-bold pb-2 ${
+							activeTab === 'favorites'
+								? 'border-bottom border-3 border-danger text-danger'
+								: 'text-secondary'
+						}`}
 						onClick={() => setActiveTab('favorites')}
 					>
-						Favourite
+						Favourite ({favorites.length})
+					</button>
+					<button
+						className={`btn btn-link text-decoration-none fw-bold pb-2 ${
+							activeTab === 'security'
+								? 'border-bottom border-3 border-danger text-danger'
+								: 'text-secondary'
+						}`}
+						onClick={() => setActiveTab('security')}
+					>
+						Security
 					</button>
 				</div>
 
@@ -326,10 +446,11 @@ const Profile = () => {
 									className="mb-4"
 								>
 									<p className="text-muted fst-italic">
-										Orders have been placed on {order.date}
+										Orders have been placed on{' '}
+										{order.date || order.createdAt || 'N/A'}
 									</p>
 									<div className="table-responsive">
-										<table className="table align-middle bg-light">
+										<table className="table align-middle bg-light text-nowrap">
 											<thead className="table-secondary">
 												<tr>
 													<th>id</th>
@@ -358,6 +479,9 @@ const Profile = () => {
 																	}
 																	style={{
 																		width: '50px',
+																		height: '50px',
+																		objectFit:
+																			'contain',
 																	}}
 																/>
 															</td>
@@ -389,37 +513,117 @@ const Profile = () => {
 
 				{/* Tab Content: Favorites */}
 				{activeTab === 'favorites' && (
-					<div className="row g-4">
-						{favorites.length > 0 ? (
-							favorites.map((prod) => (
-								<div
-									className="col-12 col-sm-6 col-md-4"
-									key={prod.id}
-								>
-									<div className="card h-100 shadow-sm border-0 p-3 bg-light text-center">
-										<img
-											src={prod.image}
-											alt={prod.name}
-											className="img-fluid mb-2"
-											style={{
-												height: '150px',
-												objectFit: 'contain',
-											}}
-										/>
-										<h5 className="fw-bold fs-6">
-											{prod.name}
-										</h5>
-										<p className="text-danger fw-bold">
-											{prod.price}$
-										</p>
+					<div className="row g-3 g-md-4">
+						{favorites && favorites.length > 0 ? (
+							favorites.map((prod, index) => {
+								// Handle flattened or nested product object structures
+								const item = prod.product || prod;
+								const productId =
+									item.id || item.productId || index;
+								// Fallback for price property
+								const productPrice =
+									item.price ?? item.cost ?? '0';
+
+								return (
+									<div
+										className="col-12 col-sm-6 col-md-4 col-lg-3"
+										key={productId}
+									>
+										<div className="card h-100 shadow-sm border-0 p-3 bg-light text-center">
+											<img
+												src={item.image}
+												alt={item.name}
+												className="img-fluid mb-2 mx-auto"
+												style={{
+													height: '160px',
+													objectFit: 'contain',
+												}}
+											/>
+											<h5 className="fw-bold fs-6 text-truncate">
+												{item.name}
+											</h5>
+											<Link
+												to={`/detail/${item.id}`}
+												className="btn btn-dark btn-sm fw-bold mt-auto"
+											>
+												View Product
+											</Link>
+										</div>
 									</div>
-								</div>
-							))
+								);
+							})
 						) : (
 							<p className="text-muted col-12">
 								No favorite products saved.
 							</p>
 						)}
+					</div>
+				)}
+
+				{/* Tab Content: Security / Password Change */}
+				{activeTab === 'security' && (
+					<div className="col-12 col-md-6 bg-light p-4 rounded shadow-sm mx-auto">
+						<h5 className="fw-bold mb-3">Change Password</h5>
+						<form onSubmit={passwordFormik.handleSubmit}>
+							<div className="mb-3">
+								<label className="form-label fw-bold">
+									New Password
+								</label>
+								<input
+									type="password"
+									className={`form-control ${
+										passwordFormik.touched.newPassword &&
+										passwordFormik.errors.newPassword
+											? 'is-invalid'
+											: ''
+									}`}
+									{...passwordFormik.getFieldProps(
+										'newPassword',
+									)}
+								/>
+								{passwordFormik.touched.newPassword &&
+									passwordFormik.errors.newPassword && (
+										<div className="invalid-feedback">
+											{passwordFormik.errors.newPassword}
+										</div>
+									)}
+							</div>
+
+							<div className="mb-3">
+								<label className="form-label fw-bold">
+									Confirm New Password
+								</label>
+								<input
+									type="password"
+									className={`form-control ${
+										passwordFormik.touched
+											.confirmPassword &&
+										passwordFormik.errors.confirmPassword
+											? 'is-invalid'
+											: ''
+									}`}
+									{...passwordFormik.getFieldProps(
+										'confirmPassword',
+									)}
+								/>
+								{passwordFormik.touched.confirmPassword &&
+									passwordFormik.errors.confirmPassword && (
+										<div className="invalid-feedback">
+											{
+												passwordFormik.errors
+													.confirmPassword
+											}
+										</div>
+									)}
+							</div>
+
+							<button
+								type="submit"
+								className="btn btn-dark w-100 fw-bold"
+							>
+								Update Password
+							</button>
+						</form>
 					</div>
 				)}
 			</div>

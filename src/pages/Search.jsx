@@ -1,126 +1,175 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { productService } from '../services/productService';
-import _ from 'lodash';
+import ProductItem from '../components/ProductItem';
 
 const Search = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const keywordParam = searchParams.get('keyword') || '';
+	const query = searchParams.get('keyword') || '';
+	const categoryId = searchParams.get('categoryId') || '';
 
-	const [keyword, setKeyword] = useState(keywordParam);
-	const [products, setProducts] = useState([]);
+	const [keywordInput, setKeywordInput] = useState(query);
+	const [selectedCategory, setSelectedCategory] = useState(categoryId);
+	const [sortOrder, setSortOrder] = useState('default'); // 'asc', 'desc', 'default'
+
 	const [categories, setCategories] = useState([]);
-	const [selectedCategory, setSelectedCategory] = useState('');
-	const [sortOrder, setSortOrder] = useState(''); // 'asc' or 'desc'
-	const [likedProducts, setLikedProducts] = useState({});
+	const [products, setProducts] = useState([]);
+	const [loading, setLoading] = useState(false);
 
-	// Fetch categories on mount
+	// Pagination states
+	const [pageIndex, setPageIndex] = useState(1);
+	const [pageSize] = useState(8);
+	const [totalItems, setTotalItems] = useState(0);
+
+	// Fetch categories list on mount
 	useEffect(() => {
 		const fetchCategories = async () => {
 			try {
 				const catData = await productService.getAllCategory();
-				setCategories(catData);
-			} catch (error) {
-				console.error('Error loading categories:', error);
+				setCategories(catData || []);
+			} catch (err) {
+				console.error('Error loading categories:', err);
 			}
 		};
 		fetchCategories();
 	}, []);
 
-	// Fetch products based on keyword or category selection
+	// Synchronize local input state when URL searchParams change
 	useEffect(() => {
-		const fetchSearchResults = async () => {
+		setKeywordInput(query);
+		setSelectedCategory(categoryId);
+	}, [query, categoryId]);
+
+	// Main data fetching logic based on URL params
+	useEffect(() => {
+		const fetchSearchData = async () => {
+			setLoading(true);
 			try {
-				let data = [];
-				if (selectedCategory) {
-					data =
-						await productService.getProductByCategory(
-							selectedCategory,
-						);
+				if (query) {
+					const data = await productService.getProductByName(query);
+					setProducts(data || []);
+					setTotalItems(data?.length || 0);
+				} else if (categoryId) {
+					const data =
+						await productService.getProductByCategory(categoryId);
+					setProducts(data || []);
+					setTotalItems(data?.length || 0);
 				} else {
-					data = await productService.getAllProducts(keywordParam);
+					const pagingData = await productService.getProductPaging(
+						pageIndex,
+						pageSize,
+					);
+					if (pagingData.items) {
+						setProducts(pagingData.items);
+						setTotalItems(
+							pagingData.totalRow || pagingData.items.length,
+						);
+					} else {
+						setProducts(pagingData || []);
+						setTotalItems(pagingData?.length || 0);
+					}
 				}
-				setProducts(data);
-			} catch (error) {
-				console.error('Error fetching search results:', error);
+			} catch (err) {
+				console.error('Search error:', err);
+			} finally {
+				setLoading(false);
 			}
 		};
 
-		fetchSearchResults();
-	}, [keywordParam, selectedCategory]);
+		fetchSearchData();
+	}, [query, categoryId, pageIndex, pageSize]);
 
-	// Handle Search Form Submit
+	// Handle manual form submission
 	const handleSearchSubmit = (e) => {
 		e.preventDefault();
-		setSelectedCategory(''); // Reset category filter on text search
-		if (keyword.trim()) {
-			setSearchParams({ keyword: keyword.trim() });
-		} else {
-			setSearchParams({});
-		}
+		const params = {};
+		if (keywordInput.trim()) params.keyword = keywordInput.trim();
+		if (selectedCategory) params.categoryId = selectedCategory;
+
+		setPageIndex(1);
+		setSearchParams(params);
 	};
 
-	// Handle Sort using Lodash
-	const handleSortChange = (e) => {
-		const order = e.target.value;
-		setSortOrder(order);
-
-		if (order) {
-			const sorted = _.orderBy(products, ['price'], [order]);
-			setProducts(sorted);
-		}
+	// Reset search filters
+	const handleResetFilters = () => {
+		setKeywordInput('');
+		setSelectedCategory('');
+		setSortOrder('default');
+		setPageIndex(1);
+		setSearchParams({});
 	};
 
-	const toggleFavorite = (productId) => {
-		setLikedProducts((prev) => ({
-			...prev,
-			[productId]: !prev[productId],
-		}));
+	// Process sorting on current product list
+	const getSortedProducts = () => {
+		const list = [...products];
+		if (sortOrder === 'asc') {
+			return list.sort((a, b) => a.price - b.price);
+		}
+		if (sortOrder === 'desc') {
+			return list.sort((a, b) => b.price - a.price);
+		}
+		return list;
+	};
+
+	const displayedProducts = getSortedProducts();
+	const totalPages = Math.ceil(totalItems / pageSize) || 1;
+
+	const handlePageChange = (newPage) => {
+		if (newPage >= 1 && newPage <= totalPages) {
+			setPageIndex(newPage);
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+		}
 	};
 
 	return (
-		<div className="search-page py-4">
-			<div className="container">
-				{/* Search Box Form */}
-				<div className="bg-light p-4 rounded-3 shadow-sm mb-4">
-					<h4 className="fw-bold mb-3">Search</h4>
-					<form
-						onSubmit={handleSearchSubmit}
-						className="row g-3"
-					>
-						<div className="col-md-9">
-							<input
-								type="text"
-								className="form-control"
-								placeholder="product name..."
-								value={keyword}
-								onChange={(e) => setKeyword(e.target.value)}
-							/>
-						</div>
-						<div className="col-md-3">
-							<button
-								type="submit"
-								className="btn btn-primary w-100 fw-bold"
-								style={{
-									backgroundColor: '#6f42c1',
-									borderColor: '#6f42c1',
-								}}
-							>
-								SEARCH
-							</button>
-						</div>
-					</form>
+		<div className="container py-4">
+			{/* Header Bar */}
+			<div
+				className="py-2 px-4 rounded text-white mb-4"
+				style={{
+					background:
+						'linear-gradient(90deg, #8a2387, #e94057, #f27121)',
+				}}
+			>
+				<h3 className="m-0 fw-bold">Search Products</h3>
+			</div>
 
-					{/* Optional Category Filter */}
-					<div className="row mt-3">
-						<div className="col-md-4">
+			{/* Interactive Search Controls Form */}
+			<div className="bg-light p-4 rounded shadow-sm mb-4">
+				<form onSubmit={handleSearchSubmit}>
+					<div className="row g-3 align-items-end">
+						{/* Search Input */}
+						<div className="col-12 col-md-5">
+							<label className="form-label fw-bold">
+								Search Keyword
+							</label>
+							<div className="input-group">
+								<span className="input-group-text bg-white">
+									<i className="bi bi-search"></i>
+								</span>
+								<input
+									type="text"
+									className="form-control"
+									placeholder="Enter product name (e.g. Nike, Adidas)..."
+									value={keywordInput}
+									onChange={(e) =>
+										setKeywordInput(e.target.value)
+									}
+								/>
+							</div>
+						</div>
+
+						{/* Category Filter */}
+						<div className="col-12 col-sm-6 col-md-3">
+							<label className="form-label fw-bold">
+								Category
+							</label>
 							<select
 								className="form-select"
 								value={selectedCategory}
-								onChange={(e) => {
-									setSelectedCategory(e.target.value);
-									setSearchParams({}); // Clear keyword search if category is selected
-								}}
+								onChange={(e) =>
+									setSelectedCategory(e.target.value)
+								}
 							>
 								<option value="">All Categories</option>
 								{categories.map((cat) => (
@@ -128,101 +177,141 @@ const Search = () => {
 										key={cat.id}
 										value={cat.id}
 									>
-										{cat.category}
+										{cat.category || cat.id}
 									</option>
 								))}
 							</select>
 						</div>
-					</div>
-				</div>
 
-				{/* Search Result Header */}
-				<div className="container-fluid py-2 mb-4 search-title-bar rounded text-white">
-					<h3 className="m-0 fw-bold">Search result</h3>
-				</div>
-
-				{/* Price Sorting Filter */}
-				<div className="row mb-4">
-					<div className="col-md-3">
-						<label className="form-label fw-bold text-muted small">
-							Price
-						</label>
-						<select
-							className="form-select"
-							value={sortOrder}
-							onChange={handleSortChange}
-						>
-							<option value="">-- Sort by price --</option>
-							<option value="asc">Ascending (Low to High)</option>
-							<option value="desc">Decrease (High to Low)</option>
-						</select>
-					</div>
-				</div>
-
-				{/* Product Grid */}
-				<div className="row g-4">
-					{products.length === 0 ? (
-						<div className="col-12 text-center py-5 text-muted">
-							No products found matching your search.
+						{/* Price Sorting */}
+						<div className="col-12 col-sm-6 col-md-2">
+							<label className="form-label fw-bold">
+								Sort Price
+							</label>
+							<select
+								className="form-select"
+								value={sortOrder}
+								onChange={(e) => setSortOrder(e.target.value)}
+							>
+								<option value="default">Default</option>
+								<option value="asc">Low to High</option>
+								<option value="desc">High to Low</option>
+							</select>
 						</div>
-					) : (
-						products.map((product) => {
-							const isLiked = likedProducts[product.id];
-							return (
-								<div
-									className="col-12 col-sm-6 col-lg-4"
-									key={product.id}
-								>
-									<div className="card search-card h-100 shadow-sm border-0 position-relative p-3 bg-light">
-										{/* Favorite Heart Icon */}
-										<i
-											className={`bi ${isLiked ? 'bi-heart-fill text-danger' : 'bi-heart text-dark'} position-absolute top-0 end-0 m-3 fs-4`}
-											style={{
-												cursor: 'pointer',
-												zIndex: 2,
-											}}
-											onClick={() =>
-												toggleFavorite(product.id)
-											}
-										></i>
 
-										<div className="text-center py-3">
-											<img
-												src={product.image}
-												alt={product.name}
-												className="img-fluid product-img"
-											/>
-										</div>
-
-										<div className="card-body d-flex flex-column justify-content-between px-0 pb-0">
-											<div>
-												<h5 className="card-title fw-bold text-dark">
-													{product.name}
-												</h5>
-												<p className="card-text text-muted small">
-													{product.shortDescription}
-												</p>
-											</div>
-
-											<div className="d-flex mt-3">
-												<Link
-													to={`/detail/${product.id}`}
-													className="btn btn-buy rounded-0 flex-grow-1"
-												>
-													Buy now
-												</Link>
-												<div className="bg-secondary bg-opacity-10 text-dark fw-bold d-flex align-items-center justify-content-center px-3 rounded-0">
-													{product.price}$
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							);
-						})
-					)}
-				</div>
+						{/* Action Buttons */}
+						<div className="col-12 col-md-2 d-flex gap-2">
+							<button
+								type="submit"
+								className="btn btn-dark fw-bold w-100"
+							>
+								Search
+							</button>
+							<button
+								type="button"
+								className="btn btn-outline-secondary"
+								onClick={handleResetFilters}
+								title="Reset filters"
+							>
+								Reset
+							</button>
+						</div>
+					</div>
+				</form>
 			</div>
+
+			{/* Results Subheading */}
+			<div className="d-flex justify-content-between align-items-center mb-3">
+				<h5 className="fw-bold text-muted m-0">
+					{query
+						? `Results for "${query}"`
+						: categoryId
+							? `Category: ${categoryId}`
+							: 'All Products'}
+				</h5>
+				<span className="badge bg-secondary">
+					{displayedProducts.length} items found
+				</span>
+			</div>
+
+			{/* Product List Grid */}
+			{loading ? (
+				<div className="text-center py-5">
+					<div
+						className="spinner-border text-primary"
+						role="status"
+					>
+						<span className="visually-hidden">Loading...</span>
+					</div>
+				</div>
+			) : displayedProducts.length === 0 ? (
+				<div className="alert alert-warning text-center py-4">
+					No products found matching your criteria.
+				</div>
+			) : (
+				<>
+					<div className="row g-3 g-md-4 mb-4">
+						{displayedProducts.map((item) => (
+							<div
+								key={item.id}
+								className="col-12 col-sm-6 col-md-4 col-lg-3"
+							>
+								<ProductItem product={item} />
+							</div>
+						))}
+					</div>
+
+					{/* Pagination Bar (Only when viewing catalog without search/category active) */}
+					{!query && !categoryId && totalPages > 1 && (
+						<nav className="d-flex justify-content-center mt-4">
+							<ul className="pagination">
+								<li
+									className={`page-item ${pageIndex === 1 ? 'disabled' : ''}`}
+								>
+									<button
+										className="page-item btn btn-outline-dark me-1"
+										onClick={() =>
+											handlePageChange(pageIndex - 1)
+										}
+									>
+										Previous
+									</button>
+								</li>
+								{Array.from(
+									{ length: totalPages },
+									(_, i) => i + 1,
+								).map((num) => (
+									<li
+										key={num}
+										className="page-item"
+									>
+										<button
+											className={`btn me-1 ${pageIndex === num ? 'btn-dark fw-bold' : 'btn-outline-dark'}`}
+											onClick={() =>
+												handlePageChange(num)
+											}
+										>
+											{num}
+										</button>
+									</li>
+								))}
+								<li
+									className={`page-item ${pageIndex === totalPages ? 'disabled' : ''}`}
+								>
+									<button
+										className="page-item btn btn-outline-dark"
+										onClick={() =>
+											handlePageChange(pageIndex + 1)
+										}
+									>
+										Next
+									</button>
+								</li>
+							</ul>
+						</nav>
+					)}
+				</>
+			)}
 		</div>
 	);
 };

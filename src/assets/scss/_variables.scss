@@ -2,6 +2,16 @@
 // SHOES SHOP - DESIGN VARIABLES & TOKENS
 // ==========================================
 
+// Breakpoints
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px
+);
+
 // Colors & Gradients
 $buy-btn-bg: #9DE167;
 $buy-btn-hover: #7dbd3e;
@@ -9,6 +19,40 @@ $quantity-btn: linear-gradient(#6181F3,#7C97F5);
 
 // Typography & Spacing
 $border-radius-base: 0.375rem;
+
+// Global responsive utility mixins
+@mixin mobile-only {
+  @media (max-width: 575.98px) {
+    @content;
+  }
+}
+
+@mixin tablet-down {
+  @media (max-width: 991.98px) {
+    @content;
+  }
+}
+
+// Mobile and layout safety resets
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+.table-responsive {
+  -webkit-overflow-scrolling: touch;
+}
+
+@include mobile-only {
+  h1, .h1 { font-size: 1.6rem; }
+  h2, .h2 { font-size: 1.4rem; }
+  h3, .h3 { font-size: 1.2rem; }
+  
+  .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
 
 // Mixin
 @mixin bg-linear-gradient($deg){

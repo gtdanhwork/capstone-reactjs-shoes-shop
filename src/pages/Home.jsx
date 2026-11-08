@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { productService } from '../services/productService';
 import { Link } from 'react-router-dom';
+import ProductItem from '../components/ProductItem';
 
 const Home = () => {
 	const [arrProduct, setArrProduct] = useState([]);
@@ -108,75 +109,20 @@ const Home = () => {
 				</div>
 			</section>
 
-			{/* Product Feature Heading */}
-			<div className="container-fluid py-3 my-4">
-				<div className="container">
-					<h3 className="m-0 fw-bold text-white p-2 d-inline-block rounded product-feature-title">
-						Product Feature
-					</h3>
+			{/* Product Feature Grid */}
+			<div className="container py-4">
+				<h2 className="fw-bold text-center mb-4">Product Feature</h2>
+				<div className="row g-3 g-md-4">
+					{arrProduct.map((product) => (
+						<div
+							key={product.id}
+							className="col-12 col-sm-6 col-md-4 col-lg-3"
+						>
+							<ProductItem product={product} />
+						</div>
+					))}
 				</div>
 			</div>
-
-			{/* Product Feature Grid */}
-			<section className="container mb-5">
-				<div className="row g-4">
-					{arrProduct.map((product) => {
-						const isLiked = likedProducts[product.id];
-						return (
-							<div
-								className="col-12 col-sm-6 col-lg-4"
-								key={product.id}
-							>
-								<div className="card product-card h-100 shadow-sm border-0 position-relative p-3 bg-light">
-									{/* Interactive Favorite Heart Icon */}
-									<i
-										className={`bi ${isLiked ? 'bi-heart-fill text-danger' : 'bi-heart text-dark'} heart-icon position-absolute top-0 end-0 m-3 fs-4`}
-										onClick={() =>
-											toggleFavorite(product.id)
-										}
-										title={
-											isLiked
-												? 'Đã thích'
-												: 'Thêm vào yêu thích'
-										}
-									></i>
-
-									<div className="text-center py-3">
-										<img
-											src={product.image}
-											alt={product.name}
-											className="img-fluid product-img"
-										/>
-									</div>
-
-									<div className="card-body d-flex flex-column justify-content-between px-0 pb-0">
-										<div>
-											<h5 className="card-title fw-bold text-dark">
-												{product.name}
-											</h5>
-											<p className="card-text text-muted small">
-												{product.shortDescription}
-											</p>
-										</div>
-
-										<div className="d-flex mt-3">
-											<Link
-												to={`/detail/${product.id}`}
-												className="btn btn-buy rounded-0 flex-grow-1"
-											>
-												Buy now
-											</Link>
-											<div className="bg-secondary bg-opacity-10 text-dark fw-bold d-flex align-items-center justify-content-center px-3 rounded-0">
-												{product.price}$
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						);
-					})}
-				</div>
-			</section>
 		</div>
 	);
 };

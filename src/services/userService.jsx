@@ -11,12 +11,6 @@ export const userService = {
 		return response.data;
 	},
 
-	facebookLogin: async (data) => {
-		const response = await http.post('/Users/facebooklogin', data);
-		return response.data;
-	},
-
-	// Get user profile details
 	getProfile: async () => {
 		try {
 			const response = await http.post('/Users/getProfileV2');
@@ -27,9 +21,9 @@ export const userService = {
 		}
 	},
 
-	// Update user profile info
 	updateProfile: async (profileData) => {
 		try {
+			// profileData can include email, name, phone, gender, password, avatar
 			const response = await http.post(
 				'/Users/updateProfile',
 				profileData,
@@ -41,13 +35,58 @@ export const userService = {
 		}
 	},
 
-	// Get favorite products list
 	getFavoriteProducts: async () => {
 		try {
 			const response = await http.get('/Users/getproductfavorite');
-			return response.data.content;
+			console.log('Favorite API Raw Data:', response.data); // Inspect this in browser console
+
+			const content = response.data?.content;
+
+			// Handle all possible backend response structures
+			if (Array.isArray(content)) {
+				return content;
+			}
+			if (Array.isArray(response.data)) {
+				return response.data;
+			}
+			if (
+				content?.productsFavorite &&
+				Array.isArray(content.productsFavorite)
+			) {
+				return content.productsFavorite;
+			}
+			if (content?.products && Array.isArray(content.products)) {
+				return content.products;
+			}
+
+			return [];
 		} catch (error) {
 			console.error('Error fetching favorites:', error);
+			return [];
+		}
+	},
+	// Like a product (GET /api/Users/like?productId=...)
+	likeProduct: async (productId) => {
+		try {
+			const response = await http.get(
+				`/Users/like?productId=${productId}`,
+			);
+			return response.data;
+		} catch (error) {
+			console.error('Error liking product:', error);
+			throw error;
+		}
+	},
+
+	// Unlike a product (GET /api/Users/unlike?productId=...)
+	unlikeProduct: async (productId) => {
+		try {
+			const response = await http.get(
+				`/Users/unlike?productId=${productId}`,
+			);
+			return response.data;
+		} catch (error) {
+			console.error('Error unliking product:', error);
 			throw error;
 		}
 	},
