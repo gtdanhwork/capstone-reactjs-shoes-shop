@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { productService } from '../services/productService';
 import ProductItem from '../components/ProductItem';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const Search = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -236,18 +237,14 @@ const Search = () => {
 
 			{/* Product List Grid */}
 			{loading ? (
-				<div className="text-center py-5">
-					<div
-						className="spinner-border text-primary"
-						role="status"
-					>
-						<span className="visually-hidden">Loading...</span>
-					</div>
-				</div>
+				<LoadingSpinner />
 			) : displayedProducts.length === 0 ? (
-				<div className="alert alert-warning text-center py-4">
-					No products found matching your criteria.
-				</div>
+				<EmptyState
+					title="No products found"
+					message="Try searching for a different keyword or category."
+					actionText="Clear Filters"
+					actionLink="/search"
+				/>
 			) : (
 				<>
 					<div className="row g-3 g-md-4 mb-4">

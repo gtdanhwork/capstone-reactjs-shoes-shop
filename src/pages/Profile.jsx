@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { userService } from '../services/userService';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const Profile = () => {
 	const navigate = useNavigate();
@@ -173,22 +174,12 @@ const Profile = () => {
 	});
 
 	if (!profileData) {
-		return (
-			<div className="container py-5 text-center">
-				<div
-					className="spinner-border text-primary"
-					role="status"
-				>
-					<span className="visually-hidden">Loading...</span>
-				</div>
-			</div>
-		);
+		return <LoadingSpinner />;
 	}
 
 	return (
 		<div className="profile-page py-4">
 			<div className="container">
-				{/* Profile Header Bar */}
 				<div
 					className="py-2 px-4 rounded text-white mb-4"
 					style={{
@@ -198,10 +189,7 @@ const Profile = () => {
 				>
 					<h3 className="m-0 fw-bold">Profile</h3>
 				</div>
-
-				{/* User Info Form */}
 				<div className="row align-items-center mb-5 bg-light p-4 rounded shadow-sm">
-					{/* Avatar Section */}
 					<div className="col-md-3 text-center mb-4 mb-md-0">
 						<div className="position-relative d-inline-block">
 							<img
@@ -218,7 +206,6 @@ const Profile = () => {
 								}}
 							/>
 						</div>
-
 						<div className="mb-2">
 							<label
 								htmlFor="avatarFileInput"
@@ -263,14 +250,12 @@ const Profile = () => {
 							)}
 						</div>
 					</div>
-
 					<div className="col-md-9">
 						{serverMsg.message && (
 							<div className={`alert alert-${serverMsg.type}`}>
 								{serverMsg.message}
 							</div>
 						)}
-
 						<form onSubmit={formik.handleSubmit}>
 							<div className="row g-3">
 								{/* Email (Read Only) */}
@@ -285,8 +270,6 @@ const Profile = () => {
 										disabled
 									/>
 								</div>
-
-								{/* Name */}
 								<div className="col-md-6">
 									<label className="form-label fw-bold">
 										Name
@@ -309,8 +292,6 @@ const Profile = () => {
 											</div>
 										)}
 								</div>
-
-								{/* Phone */}
 								<div className="col-md-6">
 									<label className="form-label fw-bold">
 										Phone
@@ -333,8 +314,6 @@ const Profile = () => {
 											</div>
 										)}
 								</div>
-
-								{/* Gender */}
 								<div className="col-md-6">
 									<label className="form-label fw-bold d-block">
 										Gender
@@ -387,7 +366,6 @@ const Profile = () => {
 									</div>
 								</div>
 							</div>
-
 							<div className="mt-4 text-end">
 								<button
 									type="submit"
@@ -400,8 +378,6 @@ const Profile = () => {
 						</form>
 					</div>
 				</div>
-
-				{/* Tab Selection */}
 				<div className="d-flex gap-4 border-bottom mb-4">
 					<button
 						className={`btn btn-link text-decoration-none fw-bold pb-2 ${
@@ -434,8 +410,6 @@ const Profile = () => {
 						Security
 					</button>
 				</div>
-
-				{/* Tab Content: Order History */}
 				{activeTab === 'orders' && (
 					<div>
 						{profileData.ordersHistory &&
@@ -510,8 +484,6 @@ const Profile = () => {
 						)}
 					</div>
 				)}
-
-				{/* Tab Content: Favorites */}
 				{activeTab === 'favorites' && (
 					<div className="row g-3 g-md-4">
 						{favorites && favorites.length > 0 ? (
@@ -559,8 +531,6 @@ const Profile = () => {
 						)}
 					</div>
 				)}
-
-				{/* Tab Content: Security / Password Change */}
 				{activeTab === 'security' && (
 					<div className="col-12 col-md-6 bg-light p-4 rounded shadow-sm mx-auto">
 						<h5 className="fw-bold mb-3">Change Password</h5>

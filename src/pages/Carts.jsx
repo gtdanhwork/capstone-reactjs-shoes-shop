@@ -20,8 +20,6 @@ const Carts = () => {
 	const handleRemove = (id, size) => {
 		dispatch(removeFromCart({ id, size }));
 	};
-
-	// Submit Order to backend API
 	const handleCheckout = async () => {
 		const token = localStorage.getItem('accessToken');
 		if (!token) {
@@ -37,7 +35,6 @@ const Carts = () => {
 
 		try {
 			setLoading(true);
-			// Format payload according to API spec requirements
 			const orderPayload = {
 				orderDetail: cartItems.map((item) => ({
 					productId: String(item.id),
@@ -50,7 +47,7 @@ const Carts = () => {
 			await http.post('/Users/order', orderPayload);
 			alert('Đặt hàng thành công!');
 			dispatch(clearCart());
-			navigate('/profile'); // Redirect to profile order history
+			navigate('/profile');
 		} catch (err) {
 			console.error('Order submission error:', err);
 			alert(
@@ -186,7 +183,6 @@ const Carts = () => {
 						</table>
 					</div>
 
-					{/* Cart Summary & Submit Order */}
 					<div className="d-flex justify-content-between align-items-center bg-light p-4 rounded shadow-sm">
 						<h4 className="fw-bold m-0">
 							Tổng tiền:{' '}

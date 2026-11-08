@@ -12,7 +12,6 @@ const Detail = () => {
 	const [quantity, setQuantity] = useState(1);
 	const dispatch = useDispatch();
 
-	// Fetch product data whenever ID changes
 	useEffect(() => {
 		const fetchProductDetail = async () => {
 			try {
@@ -30,7 +29,6 @@ const Detail = () => {
 		if (id) {
 			fetchProductDetail();
 		}
-		// Scroll to top when product changes
 		window.scrollTo(0, 0);
 	}, [id]);
 
@@ -66,9 +64,7 @@ const Detail = () => {
 	return (
 		<div className="detail-page py-4">
 			<div className="container">
-				{/* Main Product Section */}
 				<div className="row align-items-center mb-5">
-					{/* Product Image */}
 					<div className="col-lg-5 text-center mb-4 mb-lg-0">
 						<div className="p-4 bg-light border rounded-3 shadow-sm">
 							<img
@@ -87,8 +83,6 @@ const Detail = () => {
 						<h3 className="text-danger fw-bold mb-4">
 							{product.price}$
 						</h3>
-
-						{/* Size Selector */}
 						<div className="mb-4">
 							<h6 className="fw-bold mb-2">Available size</h6>
 							<div className="d-flex flex-wrap gap-2">
@@ -106,8 +100,6 @@ const Detail = () => {
 								))}
 							</div>
 						</div>
-
-						{/* Quantity Counter & Add to Cart */}
 						<div className="d-flex align-items-center gap-3 mb-4">
 							<div className="quantity-control d-flex align-items-center">
 								<button
@@ -138,8 +130,6 @@ const Detail = () => {
 						</div>
 					</div>
 				</div>
-
-				{/* Related Product Section */}
 				<div className="mt-5 pt-4 border-top">
 					<div className="text-center mb-4">
 						<h3 className="fw-bold py-2 px-4 d-inline-block rounded related-title">
