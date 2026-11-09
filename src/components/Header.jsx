@@ -1,21 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { productService } from '../services/productService';
 import logoImg from '../assets/media/img/cybersoft.png';
 
 import useRouting from '../customhooks/useRouting';
+import { logout } from '../redux/authSlice';
 
 const Header = () => {
 	const { navigate, location } = useRouting();
+	const dispatch = useDispatch();
 
 	const cartItems = useSelector((state) => state.cart.cart);
+	const user = useSelector((state) => state.auth.user);
 	const totalCartQty = cartItems.reduce(
 		(sum, item) => sum + item.quantity,
 		0,
 	);
 
-	const [user, setUser] = useState(null);
 	const [categories, setCategories] = useState([]);
 
 	useEffect(() => {
@@ -30,24 +32,8 @@ const Header = () => {
 		fetchCategories();
 	}, []);
 
-	useEffect(() => {
-		const userLoginStr = localStorage.getItem('userLogin');
-		const token = localStorage.getItem('accessToken');
-		if (token && userLoginStr) {
-			try {
-				setUser(JSON.parse(userLoginStr));
-			} catch (e) {
-				setUser(null);
-			}
-		} else {
-			setUser(null);
-		}
-	}, [location]);
-
 	const handleLogout = () => {
-		localStorage.removeItem('accessToken');
-		localStorage.removeItem('userLogin');
-		setUser(null);
+		dispatch(logout());
 		alert('Đăng xuất thành công!');
 		navigate('/login');
 	};

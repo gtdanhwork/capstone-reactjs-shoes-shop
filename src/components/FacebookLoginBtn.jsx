@@ -1,13 +1,14 @@
 import FacebookLoginModule from '@greatsumini/react-facebook-login';
 import useRouting from '../customhooks/useRouting';
+import { useDispatch } from 'react-redux';
+import { login } from '../redux/authSlice';
+import { userService } from '../services/userService';
 
 const FacebookLogin = FacebookLoginModule.default || FacebookLoginModule;
 
-import React from 'react';
-import { userService } from '../services/userService';
-
-const FacebookLoginBtn = (res) => {
+const FacebookLoginBtn = () => {
 	const { navigate } = useRouting();
+	const dispatch = useDispatch();
 	const handleFacebookSuccess = async (response) => {
 		try {
 			console.log('Facebook SDK Response:', response);
@@ -16,8 +17,12 @@ const FacebookLoginBtn = (res) => {
 			if (fbToken) {
 				const data = await userService.facebookLogin(fbToken);
 
-				localStorage.setItem('accessToken', data.accessToken);
-				localStorage.setItem('userLogin', JSON.stringify(data));
+				dispatch(
+					login({
+						token: data.accessToken,
+						user: data,
+					}),
+				);
 
 				alert('Đăng nhập Facebook thành công!');
 				navigate('/');
@@ -26,10 +31,6 @@ const FacebookLoginBtn = (res) => {
 			console.error('Facebook login API error:', error);
 			alert('Đăng nhập Facebook thất bại từ server.');
 		}
-	};
-
-	const handleFacebookFail = (error) => {
-		console.error('Facebook Login Failed:', error);
 	};
 
 	return (

@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { userService } from '../services/userService';
 import useRouting from '../customhooks/useRouting';
 import FacebookLoginBtn from '../components/FacebookLoginBtn';
+import FormikField from '../components/form/FormikField';
+import AuthPage from '../components/AuthPage';
+import { login } from '../redux/authSlice';
 
 const Login = () => {
 	const { navigate } = useRouting();
+	const dispatch = useDispatch();
 	const [serverError, setServerError] = useState('');
 
 	const loginSchema = Yup.object().shape({
@@ -24,13 +29,11 @@ const Login = () => {
 			setServerError('');
 			try {
 				const response = await userService.signin(values);
-				localStorage.setItem(
-					'accessToken',
-					response.content.accessToken,
-				);
-				localStorage.setItem(
-					'userLogin',
-					JSON.stringify(response.content),
+				dispatch(
+					login({
+						token: response.content.accessToken,
+						user: response.content,
+					}),
 				);
 
 				alert('Đăng nhập thành công!');
@@ -45,94 +48,54 @@ const Login = () => {
 	});
 
 	return (
-		<div className="container py-5">
-			<div className="row justify-content-center">
-				<div className="col-md-8 col-lg-6">
-					<div className="card shadow-sm border-0 p-4 bg-light">
-						<div className="d-flex align-items-center justify-content-between mb-4">
-							<button
-								type="button"
-								className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
-								onClick={() => navigate(-1)}
-							>
-								<i className="bi bi-arrow-left"></i> Back
-							</button>
-							<h2 className="fw-bold m-0">Login</h2>
-							<div style={{ width: '60px' }}></div>
-						</div>
+		<AuthPage
+			title="Login"
+			onBack={() => navigate(-1)}
+		>
+			{serverError && (
+				<div className="alert alert-danger">{serverError}</div>
+			)}
+			<form onSubmit={formik.handleSubmit}>
+				<FormikField
+					formik={formik}
+					name="email"
+					label="Email"
+					type="email"
+					placeholder="email"
+				/>
+				<FormikField
+					formik={formik}
+					name="password"
+					label="Password"
+					type="password"
+					placeholder="password"
+					wrapperClassName="mb-4"
+				/>
 
-						{serverError && (
-							<div className="alert alert-danger">
-								{serverError}
-							</div>
-						)}
-
-						<form onSubmit={formik.handleSubmit}>
-							<div className="mb-3">
-								<label className="form-label fw-bold">
-									Email
-								</label>
-								<input
-									type="email"
-									name="email"
-									className={`form-control ${formik.touched.email && formik.errors.email ? 'is-invalid' : ''}`}
-									placeholder="email"
-									{...formik.getFieldProps('email')}
-								/>
-								{formik.touched.email &&
-									formik.errors.email && (
-										<div className="invalid-feedback">
-											{formik.errors.email}
-										</div>
-									)}
-							</div>
-
-							<div className="mb-4">
-								<label className="form-label fw-bold">
-									Password
-								</label>
-								<input
-									type="password"
-									name="password"
-									className={`form-control ${formik.touched.password && formik.errors.password ? 'is-invalid' : ''}`}
-									placeholder="password"
-									{...formik.getFieldProps('password')}
-								/>
-								{formik.touched.password &&
-									formik.errors.password && (
-										<div className="invalid-feedback">
-											{formik.errors.password}
-										</div>
-									)}
-							</div>
-
-							<div className="d-flex justify-content-between align-items-center mb-4">
-								<Link
-									to="/register"
-									className="text-decoration-none text-primary fw-bold"
-								>
-									Register now ?
-								</Link>
-								<button
-									type="submit"
-									className="btn btn-primary px-4 fw-bold"
-									style={{
-										backgroundColor: '#6f42c1',
-										borderColor: '#6f42c1',
-									}}
-								>
-									LOGIN
-								</button>
-							</div>
-
-							<div className="text-center">
-								<FacebookLoginBtn />
-							</div>
-						</form>
-					</div>
+				<div className="d-flex justify-content-between align-items-center mb-4">
+					<Link
+						to="/register"
+						className="text-decoration-none text-primary fw-bold"
+					>
+						Register now ?
+					</Link>
+					<button
+						type="submit"
+						className="btn btn-primary px-4 fw-bold"
+						style={{
+							backgroundColor: '#6f42c1',
+							borderColor: '#6f42c1',
+						}}
+					>
+						LOGIN
+					</button>
 				</div>
-			</div>
-		</div>
+
+				<div className="text-center">
+					<FacebookLoginBtn />
+				</div>
+			</form>
+		</AuthPage>
 	);
 };
 

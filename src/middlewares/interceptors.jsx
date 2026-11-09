@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { store } from '../redux/store';
+import { logout } from '../redux/authSlice';
 
 export const http = axios.create({
 	baseURL: 'https://apistore.cybersoft.edu.vn/api',
@@ -9,7 +11,7 @@ const isTokenExpired = (token) => {
 	try {
 		const payload = JSON.parse(atob(token.split('.')[1]));
 		return payload.exp * 1000 < Date.now();
-	} catch (e) {
+	} catch {
 		return true;
 	}
 };
@@ -19,8 +21,7 @@ http.interceptors.request.use(
 		const token = localStorage.getItem('accessToken');
 		if (token) {
 			if (isTokenExpired(token)) {
-				localStorage.removeItem('accessToken');
-				localStorage.removeItem('userLogin');
+				store.dispatch(logout());
 			} else {
 				config.headers.Authorization = `Bearer ${token}`;
 			}
@@ -36,8 +37,7 @@ http.interceptors.response.use(
 	(response) => response,
 	(error) => {
 		if (error.response && error.response.status === 401) {
-			localStorage.removeItem('accessToken');
-			localStorage.removeItem('userLogin');
+			store.dispatch(logout());
 
 			const protectedRoutes = ['/profile', '/cart', '/checkout'];
 			const currentPath = window.location.pathname;

@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { userService } from '../services/userService';
 import useRouting from '../customhooks/useRouting';
 
 const ProductItem = ({ product, initialLiked = false, onToggleSuccess }) => {
 	const navigate = useRouting();
+	const token = useSelector((state) => state.auth.token);
 	const [isLiked, setIsLiked] = useState(initialLiked);
 	const [loading, setLoading] = useState(false);
 
 	const handleToggleFavorite = async (e) => {
 		e.preventDefault();
 
-		const token = localStorage.getItem('accessToken');
 		if (!token) {
 			alert('Vui lòng đăng nhập để thêm sản phẩm yêu thích!');
 			navigate('/login');

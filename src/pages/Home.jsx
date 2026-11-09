@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { productService } from '../services/productService';
 import { Link } from 'react-router-dom';
-import ProductItem from '../components/ProductItem';
 import LoadingSpinner from '../components/LoadingSpinner';
+import Pagination from '../components/Pagination';
+import ProductGrid from '../components/product/ProductGrid';
 
 const Home = () => {
 	const [arrProduct, setArrProduct] = useState([]);
@@ -44,11 +45,6 @@ const Home = () => {
 	const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 	const currentProducts = arrProduct.slice(indexOfFirstItem, indexOfLastItem);
 	const totalPages = Math.ceil(arrProduct.length / itemsPerPage);
-
-	const handlePageChange = (pageNumber) => {
-		setCurrentPage(pageNumber);
-		window.scrollTo({ top: 0, behavior: 'smooth' });
-	};
 
 	if (loading) {
 		return <LoadingSpinner message="Đang tải danh sách sản phẩm..." />;
@@ -122,70 +118,13 @@ const Home = () => {
 
 			<div className="container py-4">
 				<h2 className="fw-bold text-center mb-4">Product Feature</h2>
-				<div className="row g-3 g-md-4">
-					{currentProducts.map((product) => (
-						<div
-							key={product.id}
-							className="col-12 col-sm-6 col-md-4 col-lg-3"
-						>
-							<ProductItem product={product} />
-						</div>
-					))}
-				</div>
+				<ProductGrid products={currentProducts} />
 
-				{totalPages > 1 && (
-					<nav
-						className="mt-5"
-						aria-label="Page navigation"
-					>
-						<ul className="pagination justify-content-center">
-							<li
-								className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}
-							>
-								<button
-									className="page-link"
-									onClick={() =>
-										handlePageChange(currentPage - 1)
-									}
-								>
-									Previous
-								</button>
-							</li>
-
-							{Array.from({ length: totalPages }, (_, index) => {
-								const pageNum = index + 1;
-								return (
-									<li
-										key={pageNum}
-										className={`page-item ${currentPage === pageNum ? 'active' : ''}`}
-									>
-										<button
-											className="page-link"
-											onClick={() =>
-												handlePageChange(pageNum)
-											}
-										>
-											{pageNum}
-										</button>
-									</li>
-								);
-							})}
-
-							<li
-								className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}
-							>
-								<button
-									className="page-link"
-									onClick={() =>
-										handlePageChange(currentPage + 1)
-									}
-								>
-									Next
-								</button>
-							</li>
-						</ul>
-					</nav>
-				)}
+				<Pagination
+					currentPage={currentPage}
+					totalPages={totalPages}
+					onPageChange={setCurrentPage}
+				/>
 			</div>
 		</div>
 	);

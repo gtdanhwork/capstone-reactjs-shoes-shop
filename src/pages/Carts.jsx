@@ -1,28 +1,38 @@
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { removeFromCart, updateQuantity, clearCart } from '../redux/cartSlice';
 import { http } from '../middlewares/interceptors';
-import useRedux from '../customhooks/useRedux';
 import useRouting from '../customhooks/useRouting';
+import CartItemsTable from '../components/cart/CartItemsTable';
+import CartSummary from '../components/cart/CartSummary';
+import PageTitle from '../components/PageTitle';
 
 const Carts = () => {
-	const { dispatch } = useRedux();
+	const dispatch = useDispatch();
 	const { navigate } = useRouting();
 	const cartItems = useSelector((state) => state.cart.cart);
+	const token = useSelector((state) => state.auth.token);
+	const user = useSelector((state) => state.auth.user);
 	const [loading, setLoading] = useState(false);
 
-	const handleQuantityChange = (id, size, currentQty, delta) => {
-		const newQty = currentQty + delta;
+	const handleQuantityChange = (item, delta) => {
+		const newQty = item.quantity + delta;
 		if (newQty > 0) {
-			dispatch(updateQuantity({ id, size, quantity: newQty }));
+			dispatch(
+				updateQuantity({
+					id: item.id,
+					size: item.size,
+					quantity: newQty,
+				}),
+			);
 		}
 	};
 
-	const handleRemove = (id, size) => {
-		dispatch(removeFromCart({ id, size }));
+	const handleRemove = (item) => {
+		dispatch(removeFromCart({ id: item.id, size: item.size }));
 	};
+
 	const handleCheckout = async () => {
-		const token = localStorage.getItem('accessToken');
 		if (!token) {
 			alert('Vui lòng đăng nhập để tiến hành thanh toán!');
 			navigate('/login');
@@ -41,8 +51,7 @@ const Carts = () => {
 					productId: String(item.id),
 					quantity: item.quantity,
 				})),
-				email:
-					JSON.parse(localStorage.getItem('userLogin'))?.email || '',
+				email: user?.email || '',
 			};
 
 			await http.post('/Users/order', orderPayload);
@@ -67,15 +76,7 @@ const Carts = () => {
 
 	return (
 		<div className="container py-4">
-			<div
-				className="py-2 px-4 rounded text-white mb-4"
-				style={{
-					background:
-						'linear-gradient(90deg, #8a2387, #e94057, #f27121)',
-				}}
-			>
-				<h3 className="m-0 fw-bold">Carts</h3>
-			</div>
+			<PageTitle>Carts</PageTitle>
 
 			{cartItems.length === 0 ? (
 				<div className="text-center py-5 bg-light rounded shadow-sm">
@@ -91,117 +92,16 @@ const Carts = () => {
 				</div>
 			) : (
 				<div>
-					<div className="table-responsive mb-4">
-						<table className="table align-middle bg-light shadow-sm rounded">
-							<thead className="table-secondary">
-								<tr>
-									<th>id</th>
-									<th>img</th>
-									<th>name</th>
-									<th>price</th>
-									<th>quantity</th>
-									<th>total</th>
-									<th>action</th>
-								</tr>
-							</thead>
-							<tbody>
-								{cartItems.map((item, idx) => (
-									<tr key={`${item.id}-${item.size}`}>
-										<td>{idx + 1}</td>
-										<td>
-											<img
-												src={item.image}
-												alt={item.name}
-												style={{
-													width: '60px',
-													height: '60px',
-													objectFit: 'contain',
-												}}
-											/>
-										</td>
-										<td>
-											<span className="fw-bold">
-												{item.name}
-											</span>
-											<br />
-											<small className="text-muted">
-												Size: {item.size}
-											</small>
-										</td>
-										<td>{item.price}$</td>
-										<td>
-											<div className="d-flex align-items-center gap-2">
-												<button
-													className="btn btn-sm btn-primary px-2"
-													onClick={() =>
-														handleQuantityChange(
-															item.id,
-															item.size,
-															item.quantity,
-															-1,
-														)
-													}
-												>
-													-
-												</button>
-												<span className="fw-bold">
-													{item.quantity}
-												</span>
-												<button
-													className="btn btn-sm btn-primary px-2"
-													onClick={() =>
-														handleQuantityChange(
-															item.id,
-															item.size,
-															item.quantity,
-															1,
-														)
-													}
-												>
-													+
-												</button>
-											</div>
-										</td>
-										<td className="fw-bold text-danger">
-											{item.price * item.quantity}$
-										</td>
-										<td>
-											<button
-												className="btn btn-danger btn-sm"
-												onClick={() =>
-													handleRemove(
-														item.id,
-														item.size,
-													)
-												}
-											>
-												Delete
-											</button>
-										</td>
-									</tr>
-								))}
-							</tbody>
-						</table>
-					</div>
-
-					<div className="d-flex justify-content-between align-items-center bg-light p-4 rounded shadow-sm">
-						<h4 className="fw-bold m-0">
-							Tổng tiền:{' '}
-							<span className="text-danger">{totalAmount}$</span>
-						</h4>
-						<button
-							className="btn btn-success px-4 py-2 fw-bold"
-							style={{
-								backgroundColor: '#93D551',
-								borderColor: '#93D551',
-								color: '#000',
-							}}
-							onClick={handleCheckout}
-							disabled={loading}
-						>
-							{loading ? 'Đang xử lý...' : 'SUBMIT ORDER'}
-						</button>
-					</div>
+					<CartItemsTable
+						items={cartItems}
+						onQuantityChange={handleQuantityChange}
+						onRemove={handleRemove}
+					/>
+					<CartSummary
+						totalAmount={totalAmount}
+						loading={loading}
+						onCheckout={handleCheckout}
+					/>
 				</div>
 			)}
 		</div>
