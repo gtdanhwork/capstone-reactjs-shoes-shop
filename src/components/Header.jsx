@@ -19,6 +19,7 @@ const Header = () => {
 	);
 
 	const [categories, setCategories] = useState([]);
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
 
 	useEffect(() => {
 		const fetchCategories = async () => {
@@ -56,17 +57,16 @@ const Header = () => {
 				<button
 					className="navbar-toggler"
 					type="button"
-					data-bs-toggle="collapse"
-					data-bs-target="#headerNavbar"
 					aria-controls="headerNavbar"
-					aria-expanded="false"
+					aria-expanded={isMenuOpen}
 					aria-label="Toggle navigation"
+					onClick={() => setIsMenuOpen((isOpen) => !isOpen)}
 				>
 					<span className="navbar-toggler-icon"></span>
 				</button>
 
 				<div
-					className="collapse navbar-collapse"
+					className={`collapse navbar-collapse ${isMenuOpen ? 'show' : ''}`}
 					id="headerNavbar"
 				>
 					<ul className="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center">
