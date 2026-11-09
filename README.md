@@ -31,26 +31,6 @@ To keep component logic clean and decoupled from external libraries, this projec
 * **`useRouting` (`src/hooks/useRouting.jsx`):** Centralizes `useNavigate`, `useParams`, and search query handling into a single clean hook interface.
 * **Smart Axios Interceptor (`src/middlewares/interceptors.js`):** Automatically checks token validity on requests, strips expired tokens instantly, and handles `401 Unauthorized` responses gracefully by allowing uninterrupted guest browsing on public routes while safeguarding protected actions.
 
-## 📂 Project Directory Structure
-
-```
-src/
-├── assets/          # Static images, icons, and SCSS styles
-├── components/      # Reusable UI components
-│   ├── Header.jsx
-│   ├── Footer.jsx
-│   ├── ProductItem.jsx
-│   ├── PageHeader.jsx
-│   ├── LoadingSpinner.jsx
-│   └── EmptyState.jsx
-├── hooks/           # Custom React hooks (useRedux, useRouting)
-├── middlewares/     # Axios interceptors & HTTP configuration
-├── pages/           # Application views (Home, Search, Detail, Carts, Profile, Login, Register)
-├── redux/           # Redux slices and store configuration
-├── services/        # API service modules (productService, userService, etc.)
-└── App.jsx          # Root component & Route definitions
-```
-
 ## ⚡ Getting Started
 
 ### 1. Prerequisites
