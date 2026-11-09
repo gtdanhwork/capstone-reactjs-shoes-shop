@@ -5,7 +5,7 @@ import { userService } from '../services/userService';
 import useRouting from '../customhooks/useRouting';
 
 const ProductItem = ({ product, initialLiked = false, onToggleSuccess }) => {
-	const navigate = useRouting();
+	const { navigate } = useRouting();
 	const token = useSelector((state) => state.auth.token);
 	const [isLiked, setIsLiked] = useState(initialLiked);
 	const [loading, setLoading] = useState(false);

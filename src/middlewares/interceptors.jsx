@@ -45,8 +45,8 @@ http.interceptors.response.use(
 				currentPath.startsWith(route),
 			);
 			if (isProtected && currentPath !== '/login') {
-				alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
-				window.location.href = '/login';
+				alert('Phiên đăng nhập đã hết hạn.');
+				window.location.href = '/';
 			}
 		}
 		return Promise.reject(error);
